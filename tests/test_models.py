@@ -7,7 +7,7 @@
 # https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
+# distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
@@ -101,6 +101,83 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(new_product.available, product.available)
         self.assertEqual(new_product.category, product.category)
 
-    #
-    # ADD YOUR TEST CASES HERE
-    #
+    def test_read_a_product(self):
+        """It should Read a product and ensure that it passes"""
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        found_product = Product.find(product.id)
+        self.assertIsNotNone(found_product)
+        self.assertEqual(found_product.id, product.id)
+        self.assertEqual(found_product.name, product.name)
+        self.assertEqual(found_product.description, product.description)
+        self.assertEqual(found_product.price, product.price)
+        self.assertEqual(found_product.available, product.available)
+        self.assertEqual(found_product.category, product.category)
+
+    def test_update_a_product(self):
+        """It should Update a product and ensure that it passes"""
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertIsNotNone(product.id)
+        product.description = "Updated description"
+        product.update()
+        updated_product = Product.find(product.id)
+        self.assertEqual(updated_product.id, product.id)
+        self.assertEqual(updated_product.description, "Updated description")
+
+    def test_delete_a_product(self):
+        """It should Delete a product and ensure that it passes"""
+        product = ProductFactory()
+        product.id = None
+        product.create()
+        self.assertEqual(len(Product.all()), 1)
+        product.delete()
+        self.assertEqual(len(Product.all()), 0)
+
+    def test_list_all_products(self):
+        """It should List all products"""
+        self.assertEqual(Product.all(), [])
+        for _ in range(5):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+        self.assertEqual(len(Product.all()), 5)
+
+    def test_find_product_by_name(self):
+        """It should Find a product by name and ensure that it passes"""
+        products = [ProductFactory() for _ in range(5)]
+        for product in products:
+            product.id = None
+            product.create()
+        name = products[0].name
+        matching_products = Product.find_by_name(name)
+        self.assertEqual(len(matching_products), sum(1 for p in products if p.name == name))
+        for product in matching_products:
+            self.assertEqual(product.name, name)
+
+    def test_find_product_by_availability(self):
+        """It should Find a product by availability and ensure that it passes"""
+        products = [ProductFactory() for _ in range(10)]
+        for product in products:
+            product.id = None
+            product.create()
+        availability = products[0].available
+        matching_products = Product.find_by_availability(availability)
+        self.assertEqual(len(matching_products), sum(1 for p in products if p.available == availability))
+        for product in matching_products:
+            self.assertEqual(product.available, availability)
+
+    def test_find_product_by_category(self):
+        """It should Find a product by category and ensure that it passes"""
+        products = [ProductFactory() for _ in range(10)]
+        for product in products:
+            product.id = None
+            product.create()
+        category = products[0].category
+        matching_products = Product.find_by_category(category)
+        self.assertEqual(len(matching_products), sum(1 for p in products if p.category == category))
+        for product in matching_products:
+            self.assertEqual(product.category, category)
